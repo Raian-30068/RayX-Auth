@@ -56,21 +56,66 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // ИСПРАВЛЕНО: Объявляем все переменные формы ровно ОДИН раз
     const form = document.querySelector('form');
+    const username = document.querySelector('input[name="username"]');
+    const email = document.querySelector('input[name="email"]');
     const password = document.querySelector('input[name="password"]');
     const confirmPassword = document.querySelector('input[name="confirm_password"]');
 
-    form.addEventListener('submit', function (event) {
+    form.addEventListener('submit', async function (event) { 
         event.preventDefault();
 
+        // 1. Проверка совпадения паролей
         if (password.value !== confirmPassword.value) {
             alert('Пароли не совпадают! Проверьте ввод.');
             confirmPassword.focus(); 
             return; 
         }
 
-        alert('Поздравляем! Аккаунт RayX успешно создан.');
-        form.reset(); 
-        autoDetectCountry();
+        // 2. Автоматически вытаскиваем tg_id из ссылки сайта
+        const urlParams = new URLSearchParams(window.location.search);
+        const telegramId = urlParams.get('tg_id'); 
+
+        if (!telegramId) {
+            alert('Ошибка доступа: Пожалуйста, запустите эту страницу строго через вашего Telegram-бота RayX!');
+            return;
+        }
+
+        // 3. Собираем чистый объект данных формы
+        const userData = {
+            tg_id: parseInt(telegramId, 10), 
+            username: username.value,
+            email: email.value,
+            phone: phoneInput.value,
+            password: password.value 
+        };
+
+        // ИСПРАВЛЕНО: Сюда ты будешь вставлять свою полную временную ссылку из ngrok + путь до эндпоинта FastAPI
+        // Пример: "https://ngrok-free.app"
+        const fastapiServerUrl = "https://ТВОЙ_АДРЕС_ИЗ_NGROK.ngrok-free.app/v1/auth/register";
+
+        try {
+            // Отправляем пакет данных на сервер Lenovo
+            const response = await fetch(fastapiServerUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                alert(`Поздравляем! Аккаунт RayX успешно создан.\nСистема Нейро активирована для Telegram ID: ${telegramId}`);
+                form.reset(); 
+                await autoDetectCountry(); // Перезапускаем автокод страны после очистки
+            } else {
+                alert('Ошибка сервера: Не удалось зарегистрировать аккаунт. Попробуйте позже.');
+            }
+
+        } catch (error) {
+            console.error("Критический сбой сети:", error);
+            alert('Ошибка подключения: Твой сервер Lenovo сейчас выключен или обновилась ссылка ngrok!');
+        }
     });
 });
