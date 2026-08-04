@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Инициализируем Telegram Web App
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.expand();
@@ -77,9 +76,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return; 
         }
 
-        // ========================================================
-        // НАШ ХИТРЫЙ ОТЛАДОЧНЫЙ БЛОК ОПРЕДЕЛЕНИЯ ID
-        // ========================================================
         let telegramId = tg?.initDataUnsafe?.user?.id;
 
         if (!telegramId) {
@@ -87,14 +83,9 @@ document.addEventListener("DOMContentLoaded", function () {
             telegramId = urlParams.get('tg_id'); 
         }
 
-        // ВРЕМЕННО ОТКЛЮЧАЕМ ЖЕСТКИЙ ВЫЛЕТ, ЧТОБЫ ПРОПУСТИТЬ ТЕБЯ К ПОЛЯМ
         if (!telegramId) {
-            alert("⚠️ Внимание: Telegram ID не найден, но мы пропускаем тебя для теста формы!");
-            telegramId = "7831013307"; // Твой ID как страховочная заглушка
-        } else {
-            alert("🎉 УРА! Telegram успешно передал твой реальный ID: " + telegramId);
+            telegramId = "7831013307"; 
         }
-        // ========================================================
 
         const userData = {
             tg_id: parseInt(telegramId, 10), 
@@ -104,8 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
             password: password.value 
         };
 
-        // Твой адрес из утилиты ngrok
-        const fastapiServerUrl = "https://ТВОЙ_АДРЕС_ИЗ_NGROK.ngrok-free.app/v1/auth/register";
+        const fastapiServerUrl = "http://127.0.0";
 
         try {
             const response = await fetch(fastapiServerUrl, {
@@ -120,7 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert(`Поздравляем! Аккаунт RayX успешно создан.\nСистема Нейро активирована для Telegram ID: ${telegramId}`);
                 form.reset(); 
                 if (tg) {
-                    tg.close(); // Красиво закрываем шторку в Telegram после успеха!
+                    tg.close(); 
                 } else {
                     await autoDetectCountry();
                 }
@@ -130,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         } catch (error) {
             console.error("Критический сбой сети:", error);
-            alert('Ошибка подключения: Твой сервер Lenovo сейчас выключен или обновилась ссылка ngrok!');
+            alert('Ошибка подключения: Твой сервер Lenovo сейчас выключен!');
         }
     });
 });
