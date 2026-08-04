@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function autoDetectCountry() {
         try {
-            const response = await fetch('https://ipapi.co/json/');
+            const response = await fetch('https://ipapi.co');
             const data = await response.json();
             if (data && data.country_calling_code) {
                 phoneInput.value = data.country_calling_code + " ";
@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    // Инициализируем Telegram Web App
     const tg = window.Telegram?.WebApp;
     if (tg) {
         tg.expand();
@@ -76,6 +77,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return; 
         }
 
+        // ========================================================
+        // НАШ ХИТРЫЙ ОТЛАДОЧНЫЙ БЛОК ОПРЕДЕЛЕНИЯ ID
+        // ========================================================
         let telegramId = tg?.initDataUnsafe?.user?.id;
 
         if (!telegramId) {
@@ -83,10 +87,14 @@ document.addEventListener("DOMContentLoaded", function () {
             telegramId = urlParams.get('tg_id'); 
         }
 
+        // ВРЕМЕННО ОТКЛЮЧАЕМ ЖЕСТКИЙ ВЫЛЕТ, ЧТОБЫ ПРОПУСТИТЬ ТЕБЯ К ПОЛЯМ
         if (!telegramId) {
-            alert('Ошибка доступа: Пожалуйста, запустите эту страницу строго через вашего Telegram-бота RayX!');
-            return;
+            alert("⚠️ Внимание: Telegram ID не найден, но мы пропускаем тебя для теста формы!");
+            telegramId = "7831013307"; // Твой ID как страховочная заглушка
+        } else {
+            alert("🎉 УРА! Telegram успешно передал твой реальный ID: " + telegramId);
         }
+        // ========================================================
 
         const userData = {
             tg_id: parseInt(telegramId, 10), 
@@ -96,6 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
             password: password.value 
         };
 
+        // Твой адрес из утилиты ngrok
         const fastapiServerUrl = "https://ТВОЙ_АДРЕС_ИЗ_NGROK.ngrok-free.app/v1/auth/register";
 
         try {
@@ -111,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert(`Поздравляем! Аккаунт RayX успешно создан.\nСистема Нейро активирована для Telegram ID: ${telegramId}`);
                 form.reset(); 
                 if (tg) {
-                    tg.close();
+                    tg.close(); // Красиво закрываем шторку в Telegram после успеха!
                 } else {
                     await autoDetectCountry();
                 }
